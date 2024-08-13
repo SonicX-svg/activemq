@@ -1,4 +1,8 @@
 package activemq.demo;
+/**
+ * для запуска с аргументом path:
+ * mvn exec:java -Dexec.mainClass="activemq.demo.QueueProducer" -Dexec.args="/home/sonikx/IdeaProjects/task2/src/main/java/activemq/demo/file.txt
+ */
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -33,24 +37,27 @@ public class QueueProducer {
         // 7. Create a message
         TextMessage textMessage;
         Scanner scanner = null;
-        try {
-            scanner = new Scanner(new File("/home/sonikx/IdeaProjects/task2/src/main/java/activemq/demo/file.txt"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        while (scanner.hasNextLine()) {
-            String s = scanner.nextLine();
-            System.out.println("Отправляю строку из фаила!: "+s);
-            textMessage = session.createTextMessage(s);
-            // 8. Send message
-            producer.send(textMessage);
+        //String path_from_terminal = System.out.println(args[0]);
+        while (true) {
             try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
+                scanner = new Scanner(new File(args[0]));
+            } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
+            while (scanner.hasNextLine()) {
+                String s = scanner.nextLine();
+                System.out.println("Отправляю строку из фаила!: "+s);
+                textMessage = session.createTextMessage(s);
+                // 8. Send message
+                producer.send(textMessage);
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            scanner.close();
         }
-        scanner.close();
 
         // 9. Close the resource
         producer.close();
